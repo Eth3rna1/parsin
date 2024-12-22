@@ -9,7 +9,15 @@ use crate::Type;
 use std::convert::Into;
 use std::process::exit;
 
+/// Constructs the error message, stderrs, and exits with status 1
+///
+/// PARAMETERS <TYPE> <NAME>   <DESC>
+/// ---------------------------------
+///     &Context context   A reference to the context of the CLI parser
+///     &Error   error     A reference to the error returned to throw
 pub fn send_help_and_exit(context: &Context, error: &Error) -> ! {
+    // WantsHelp error signifies that the client raised the `--help`
+    // flag, thus the program will throw an advanced error for the client
     if error.kind() == ErrorKind::WantsHelp {
         // function exits on its own,
         // so it's not necessary to manually exit
@@ -26,6 +34,11 @@ For more information, try passing `--help`."#,
     exit(1);
 }
 
+/// Constructs a more advanced, descriptive version of the help message, stderrs,
+/// and exits
+/// PARAMETERS <TYPE> <NAME>   <DESC>
+/// ---------------------------------
+///     &Context context   A reference to the context fo the CLI parser
 pub fn send_advanced_help_and_exit(context: &Context) -> ! {
     let mut error_msg: String = String::new();
     error_msg += "Usage: [OPTIONS] ";
@@ -50,6 +63,8 @@ ARGUMENTS
         }
         error_msg += &lines.join("\n");
     }
+    // Options are ALWAYS going to display because
+    // the `--help` flag will always exist
     error_msg += r#"
 
 OPTIONS
@@ -59,7 +74,7 @@ OPTIONS
     for flag in context.flags.iter() {
         lines.push(format!("{:>15}   {}", flag.name, flag.help));
     }
-    lines.push(format!("{:>15}   Display this message", "--help"));
+    lines.push(format!("{:>15}   Displays this message", "--help"));
     error_msg += &lines.join("\n");
     eprintln!("{}", error_msg);
     exit(1);

@@ -1,4 +1,6 @@
-use std::fmt;
+//use std::fmt;
+use std::fmt::Display;
+use std::fmt::Formatter;
 use std::fmt::Result;
 
 /// Indicating the type of error produced
@@ -21,26 +23,24 @@ pub struct Error {
 }
 
 impl Error {
+    /// Constructor for Error
     pub fn new(kind: ErrorKind, diagnosis: String) -> Self {
         Self { kind, diagnosis }
     }
 
+    /// Getter
     pub fn kind(&self) -> ErrorKind {
         self.kind.clone()
     }
-}
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result {
-        write!(f, "{}", self.diagnosis)
-    }
-}
-
-/*
-impl ToString for Error {
-    /// Returns the diagnosis
-    fn to_string(&self) -> String {
+    /// Getter
+    pub fn diagnosis(&self) -> String {
         self.diagnosis.clone()
     }
 }
-*/
+
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "{}", self.diagnosis)
+    }
+}

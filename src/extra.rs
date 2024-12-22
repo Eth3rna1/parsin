@@ -7,6 +7,9 @@ use crate::errors::ErrorKind;
 
 use std::cmp::PartialEq;
 
+/// Iterates through an array looking for item,
+/// if such item is found, the item will be removed
+/// from the vector
 pub(crate) fn find_and_remove<T: PartialEq>(
     _collection: &mut Vec<T>,
     item: &T,

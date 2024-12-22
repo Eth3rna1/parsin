@@ -1,21 +1,27 @@
 /*
     TO-DO: move all the implementations into a module
 */
+/// Modules created
 pub mod errors;
 mod extra;
 mod help;
 
+/// Simplifying the use of functions
+/// within the created modules
 use errors::Error;
 use errors::ErrorKind;
 use help::send_advanced_help_and_exit;
 use help::send_help_and_exit;
 
+/// Functions from the
+/// standard library
 use std::collections::HashMap;
 use std::convert::From;
 use std::convert::Into;
 use std::env::args;
 use std::slice::Iter;
 
+/// Obtains the CLI arguments
 pub fn get_env_args() -> Vec<String> {
     args().collect::<Vec<String>>()
 }
@@ -33,25 +39,32 @@ pub enum Type {
 /// Context struct before parsing arguments
 #[derive(Debug, Clone)]
 pub struct Flag {
+    /// The flag itself used to indicate a flag
     pub name: String,
+    /// The type of the value obtained to parse into
     pub r#type: Type,
+    /// Help message when displaying an advanced error
     pub help: String,
-    mandatory: bool,
+    /// Signals if its an important flag or not
+    pub is_mandatory: bool,
 }
 
 impl Flag {
-    pub fn new(name: String, r#type: Type, help: String, mandatory: bool) -> Self {
+    /// Initializes an instance of Flag
+    pub fn new(name: String, r#type: Type, help: String, is_mandatory: bool) -> Self {
         Self {
             name,
             r#type,
             help,
-            mandatory,
+            is_mandatory,
         }
     }
-
+/*
+    /// Getter, for readability purposes
     pub fn is_mandatory(&self) -> bool {
         self.mandatory
     }
+*/
 }
 
 impl From<(String, Type, String, bool)> for Flag {
@@ -93,26 +106,27 @@ impl From<(&str, Type, &str, bool)> for Flag {
     }
 }
 
+/// A struct for Context that signifies an Argument
 #[derive(Debug, Clone)]
 pub struct Arg {
+    /// The name of the argument
     pub name: String,
+    /// The type to parse the argument given into
     pub r#type: Type,
+    /// Help message to display when errored
     pub help: String,
-    mandatory: bool,
+    /// Signal if the argument is mandatory or not
+    pub is_mandatory: bool,
 }
 
 impl Arg {
-    pub fn new(name: String, r#type: Type, help: String, mandatory: bool) -> Self {
+    pub fn new(name: String, r#type: Type, help: String, is_mandatory: bool) -> Self {
         Self {
             name,
             r#type,
             help,
-            mandatory,
+            is_mandatory,
         }
-    }
-
-    pub fn is_mandatory(&self) -> bool {
-        self.mandatory
     }
 }
 
@@ -393,7 +407,7 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
             for i in __pointer..c_len {
                 let arg = &__context.args[i];
                 // argument is mandatory and its already assumed that the argument was not provided
-                if arg.is_mandatory() {
+                if arg.is_mandatory {
                     return Err(Error::new(
                         ErrorKind::MissingArgument,
                         format!("Missing argument `<{}>`", arg.name.to_uppercase()),
@@ -405,7 +419,7 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
     {
         // checking for mandatory ungiven flags
         for flag in __context.flags.iter() {
-            if flag.is_mandatory() && !arguments.contains(&flag.name) {
+            if flag.is_mandatory && !arguments.contains(&flag.name) {
                 return Err(Error::new(
                     ErrorKind::MissingFlag,
                     format!("Missing flag `{}`", &flag.name),
@@ -488,7 +502,7 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
     {
         // Pairing each argument with the context given
 
-        // new memoization of __args
+        // new memoization of __args length
         let a_len = __args.len();
         for (i, arg) in __context.args.iter().enumerate() {
             if i >= a_len {
@@ -498,7 +512,7 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
             __parsed.arguments.insert(arg.name.clone(), Some(__args[i].to_string()));
         }
     }
-    dbg!(__args);
+    //dbg!(__args);
     Ok(__parsed)
 }
 
