@@ -35,6 +35,16 @@ pub enum Type {
     Bool,
 }
 
+/// Encapsulates the parsed arguments
+/// and is used when returning the parsed
+/// struct
+#[derive(Debug, Clone)]
+pub enum Value {
+    Str(String),
+    Bool(bool),
+    Int(i32)
+}
+
 /// Meant to be used within the
 /// Context struct before parsing arguments
 #[derive(Debug, Clone)]
@@ -59,12 +69,6 @@ impl Flag {
             is_mandatory,
         }
     }
-/*
-    /// Getter, for readability purposes
-    pub fn is_mandatory(&self) -> bool {
-        self.mandatory
-    }
-*/
 }
 
 impl From<(String, Type, String, bool)> for Flag {
@@ -167,9 +171,13 @@ impl From<(&str, Type, &str, bool)> for Arg {
 /// Context
 #[derive(Debug, Clone)]
 pub struct Context {
+    /// Name of the program itself
     name: String,
+    /// Description of the program itself
     description: String,
+    /// Defined aribtrary arguments
     args: Vec<Arg>,
+    /// Defined arbitrary flags you want
     flags: Vec<Flag>,
 }
 
@@ -181,6 +189,26 @@ impl Context {
             args: Vec::new(),
             flags: Vec::new(),
         }
+    }
+
+    /// getter
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+
+    /// getter
+    pub fn description(&self) -> String {
+        self.description.clone()
+    }
+
+    /// getter
+    pub fn args(&self) -> Vec<Arg> {
+        self.args.clone()
+    }
+
+    /// getter
+    pub fn flags(&self) -> Vec<Flag> {
+        self.flags.clone()
     }
 
     pub fn add_args(&mut self, args: &[Arg]) -> Result<(), Error> {
@@ -302,7 +330,7 @@ impl Context {
 #[derive(Debug, Clone)]
 pub struct ParsedArguments {
     /// lone arguments that weren't part of a value for a flag, will go here
-    pub arguments: HashMap<String, Option<String>>,
+    pub arguments: HashMap<String, Option<Value>>,
     pub flags_int: HashMap<String, i32>,
     pub flags_str: HashMap<String, String>,
     pub flags_bool: HashMap<String, bool>,
@@ -453,7 +481,7 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
                         }
                         let int_result = __flags_and_values[__pointer + 1].parse::<i32>();
                         if let Err(error) = int_result {
-                            return Err(Error::new(ErrorKind::Other, error.to_string()));
+                            return Err(Error::new(ErrorKind::Other, format!("Ref: `{}`, {}", flag.name, error.to_string())));
                         }
                         __parsed.flags_int.insert(flag.name, int_result.unwrap());
                         __pointer += 2;
@@ -509,10 +537,27 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
                 __parsed.arguments.insert(arg.name.clone(), None);
                 continue
             }
-            __parsed.arguments.insert(arg.name.clone(), Some(__args[i].to_string()));
+            {
+                // parsing the arguments given into their respective types
+                match arg.r#type {
+                    Type::Int  => {
+                        let result_int = __args[i].parse::<i32>();
+                        if let Err(error) = result_int {
+                            return Err(Error::new(ErrorKind::Other, format!("Ref: `{}`, {}", arg.name, error.to_string())));
+                        }
+                        __parsed.arguments.insert(arg.name.clone(), Some(Value::Int(result_int.unwrap())));
+                    },
+                    Type::Str  => {
+                        __parsed.arguments.insert(arg.name.clone(), Some(Value::Str(__args[i].to_string())));
+                    },
+                    Type::Bool => {
+                        __parsed.arguments.insert(arg.name.clone(), Some(Value::Bool(true)));
+                    }
+                }
+            }
+            //__parsed.arguments.insert(arg.name.clone(), Some(__args[i].to_string()));
         }
     }
-    //dbg!(__args);
     Ok(__parsed)
 }
 
