@@ -1,7 +1,6 @@
 /*
     TO-DO: move all the implementations into a module
 */
-/// Modules created
 pub mod errors;
 mod extra;
 mod help;
@@ -13,8 +12,7 @@ use errors::ErrorKind;
 use help::send_advanced_help_and_exit;
 use help::send_help_and_exit;
 
-/// Functions from the
-/// standard library
+/// Use of the standard library
 use std::collections::HashMap;
 use std::convert::From;
 use std::convert::Into;
