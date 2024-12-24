@@ -10,10 +10,10 @@ Initializing [`Arg`](struct@crate::Arg)
 ```rust
 use parsin::{Type, Arg};
 
-fn main() {
-    let arg = Arg::new("Name", "This is the description", Type::Str, true);
-    println!("{:#?}", arg);
-}
+# fn main() {
+let arg = Arg::new("Name", "This is the description", Type::Str, true);
+println!("{:#?}", arg);
+# }
 ```
 Outputs
 ```text
@@ -27,18 +27,20 @@ Arg {
 
 Initializing [`Context`]
 ```rust
-fn main() {
-    let context = Context::new()
-}
+use parsin::Context;
+
+# fn main() {
+let context = Context::new()
+# }
 
 ```
 */
 // Made modules in this program
+mod builder;
 /// Contains its own Error struct along with error types
 pub mod errors;
 mod extra;
 mod help;
-mod builder;
 
 // Simplifying the use of functions
 // within the created modules
@@ -47,9 +49,9 @@ use errors::ErrorKind;
 use help::send_help_and_exit;
 
 // Simplifying modularization within the API
+pub use builder::arg::Arg;
 pub use builder::context::Context;
 pub use builder::flag::Flag;
-pub use builder::arg::Arg;
 
 // Use of the standard library
 use std::collections::HashMap;
@@ -74,7 +76,7 @@ pub enum Type {
 pub enum Value {
     Str(String),
     Bool(bool),
-    Int(i32)
+    Int(i32),
 }
 
 /// The returned parsed data
@@ -230,7 +232,10 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
                         }
                         let int_result = __flags_and_values[__pointer + 1].parse::<i32>();
                         if let Err(error) = int_result {
-                            return Err(Error::new(ErrorKind::Other, format!("Ref: `{}`, {}", flag.name, error.to_string())));
+                            return Err(Error::new(
+                                ErrorKind::Other,
+                                format!("Ref: `{}`, {}", flag.name, error),
+                            ));
                         }
                         __parsed.flags_int.insert(flag.name, int_result.unwrap());
                         __pointer += 2;
@@ -269,7 +274,7 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
                     Type::Bool => panic!("Boolean type spilled into __flags_and_values"),
                 }
                 // end of the match statement
-                continue
+                continue;
             }
             // ELSE not a flag
             //__args.push(element);
@@ -284,23 +289,32 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
         for (i, arg) in __context.args.iter().enumerate() {
             if i >= a_len {
                 __parsed.arguments.insert(arg.name.clone(), None);
-                continue
+                continue;
             }
             {
                 // parsing the arguments given into their respective types
                 match arg.r#type {
-                    Type::Int  => {
+                    Type::Int => {
                         let result_int = __args[i].parse::<i32>();
                         if let Err(error) = result_int {
-                            return Err(Error::new(ErrorKind::Other, format!("Ref: `{}`, {}", arg.name, error.to_string())));
+                            return Err(Error::new(
+                                ErrorKind::Other,
+                                format!("Ref: `{}`, {}", arg.name, error),
+                            ));
                         }
-                        __parsed.arguments.insert(arg.name.clone(), Some(Value::Int(result_int.unwrap())));
-                    },
-                    Type::Str  => {
-                        __parsed.arguments.insert(arg.name.clone(), Some(Value::Str(__args[i].to_string())));
-                    },
+                        __parsed
+                            .arguments
+                            .insert(arg.name.clone(), Some(Value::Int(result_int.unwrap())));
+                    }
+                    Type::Str => {
+                        __parsed
+                            .arguments
+                            .insert(arg.name.clone(), Some(Value::Str(__args[i].to_string())));
+                    }
                     Type::Bool => {
-                        __parsed.arguments.insert(arg.name.clone(), Some(Value::Bool(true)));
+                        __parsed
+                            .arguments
+                            .insert(arg.name.clone(), Some(Value::Bool(true)));
                     }
                 }
             }

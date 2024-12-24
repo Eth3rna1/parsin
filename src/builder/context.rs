@@ -1,8 +1,8 @@
-use crate::Flag;
-use crate::Type;
-use crate::Arg;
 use crate::errors::Error;
 use crate::errors::ErrorKind;
+use crate::Arg;
+use crate::Flag;
+use crate::Type;
 
 /// [`Context`]
 #[derive(Debug, Clone)]
@@ -143,24 +143,44 @@ impl Context {
     }
 }
 
-impl<const SIZE: usize> From<&(&[(&str, Type, &str, bool); SIZE], &[(&str, Type, &str, bool); SIZE])>  for Context{
-    fn from(_tuple : &(&[(&str, Type, &str, bool); SIZE], &[(&str, Type, &str, bool); SIZE])) -> Self {
-        let args: Vec<Arg> = _tuple.0.iter().map(|t| Arg::from(t)).collect();
-        let flags: Vec<Flag> = _tuple.1.iter().map(|t| Flag::from(t)).collect();
-        Self {
-            args,
-            flags
-        }
+impl Default for Context {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-impl<const SIZE: usize> From<(&[(&str, Type, &str, bool); SIZE], &[(&str, Type, &str, bool); SIZE])>  for Context{
-    fn from(_tuple : (&[(&str, Type, &str, bool); SIZE], &[(&str, Type, &str, bool); SIZE])) -> Self {
-        let args: Vec<Arg> = _tuple.0.iter().map(|t| Arg::from(t)).collect();
-        let flags: Vec<Flag> = _tuple.1.iter().map(|t| Flag::from(t)).collect();
-        Self {
-            args,
-            flags
-        }
+impl<const SIZE: usize>
+    From<&(
+        &[(&str, Type, &str, bool); SIZE],
+        &[(&str, Type, &str, bool); SIZE],
+    )> for Context
+{
+    fn from(
+        _tuple: &(
+            &[(&str, Type, &str, bool); SIZE],
+            &[(&str, Type, &str, bool); SIZE],
+        ),
+    ) -> Self {
+        let args: Vec<Arg> = _tuple.0.iter().map(Arg::from).collect();
+        let flags: Vec<Flag> = _tuple.1.iter().map(Flag::from).collect();
+        Self { args, flags }
+    }
+}
+
+impl<const SIZE: usize>
+    From<(
+        &[(&str, Type, &str, bool); SIZE],
+        &[(&str, Type, &str, bool); SIZE],
+    )> for Context
+{
+    fn from(
+        _tuple: (
+            &[(&str, Type, &str, bool); SIZE],
+            &[(&str, Type, &str, bool); SIZE],
+        ),
+    ) -> Self {
+        let args: Vec<Arg> = _tuple.0.iter().map(Arg::from).collect();
+        let flags: Vec<Flag> = _tuple.1.iter().map(Flag::from).collect();
+        Self { args, flags }
     }
 }
