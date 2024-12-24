@@ -4,17 +4,16 @@
 use crate::errors::Error;
 use crate::errors::ErrorKind;
 use crate::Context;
-use crate::Type;
 
-use std::convert::Into;
 use std::process::exit;
 
 /// Constructs the error message, stderrs, and exits with status 1
 ///
-/// PARAMETERS <TYPE> <NAME>   <DESC>
-/// ---------------------------------
-///     &Context context   A reference to the context of the CLI parser
-///     &Error   error     A reference to the error returned to throw
+/// | Type                                | Name    | Description                                  |
+/// |-------------------------------------|---------|----------------------------------------------|
+/// | &[`Context`](struct@crate::Context) | context | A reference to the context of the CLI parser |
+/// |-------------------------------------|---------|----------------------------------------------|
+/// | &[`Error`](struct@crate::errors::Error) | error | A reference to the error returned to throw |
 pub fn send_help_and_exit(context: &Context, error: &Error) -> ! {
     // WantsHelp error signifies that the client raised the `--help`
     // flag, thus the program will throw an advanced error for the client

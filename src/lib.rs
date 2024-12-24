@@ -1,31 +1,67 @@
-/*
-    TO-DO: move all the implementations into a module
+/*! # Parsin
+Parsin is a minimalistic Command Line Interface for Rust.
+Parsin offers explicit declaration of flags and arguments for
+better readability and maintainability within client code.
+The only functions that the client would need is [struct@Context],
+[struct@Flag], [struct@Arg], [enum@Type], and [fn@parse].
+## Examples
+
+Initializing [`Arg`](struct@crate::Arg)
+```rust
+use parsin::{Type, Arg};
+
+fn main() {
+    let arg = Arg::new("Name", "This is the description", Type::Str, true);
+    println!("{:#?}", arg);
+}
+```
+Outputs
+```text
+Arg {
+    name: "Name",
+    type: Str,
+    help: "This is the description",
+    is_mandatory: true,
+}
+```
+
+Initializing [`Context`]
+```rust
+fn main() {
+    let context = Context::new()
+}
+
+```
 */
+// Made modules in this program
+/// Contains its own Error struct along with error types
 pub mod errors;
 mod extra;
 mod help;
+mod builder;
 
-/// Simplifying the use of functions
-/// within the created modules
+// Simplifying the use of functions
+// within the created modules
 use errors::Error;
 use errors::ErrorKind;
-use help::send_advanced_help_and_exit;
 use help::send_help_and_exit;
 
-/// Use of the standard library
+// Simplifying modularization within the API
+pub use builder::context::Context;
+pub use builder::flag::Flag;
+pub use builder::arg::Arg;
+
+// Use of the standard library
 use std::collections::HashMap;
 use std::convert::From;
-use std::convert::Into;
 use std::env::args;
-use std::slice::Iter;
 
-/// Obtains the CLI arguments
+/// Obtains the Command Line Interface arguments
 pub fn get_env_args() -> Vec<String> {
     args().collect::<Vec<String>>()
 }
 
-/// An enum used to signal what
-/// to parse a value into
+/// Defines what to **parse** an argument into
 #[derive(Debug, Clone)]
 pub enum Type {
     Int,
@@ -33,9 +69,7 @@ pub enum Type {
     Bool,
 }
 
-/// Encapsulates the parsed arguments
-/// and is used when returning the parsed
-/// struct
+/// Encapsulates the returned parsed argument
 #[derive(Debug, Clone)]
 pub enum Value {
     Str(String),
@@ -43,291 +77,9 @@ pub enum Value {
     Int(i32)
 }
 
-/// Meant to be used within the
-/// Context struct before parsing arguments
-#[derive(Debug, Clone)]
-pub struct Flag {
-    /// The flag itself used to indicate a flag
-    pub name: String,
-    /// The type of the value obtained to parse into
-    pub r#type: Type,
-    /// Help message when displaying an advanced error
-    pub help: String,
-    /// Signals if its an important flag or not
-    pub is_mandatory: bool,
-}
-
-impl Flag {
-    /// Initializes an instance of Flag
-    pub fn new(name: String, r#type: Type, help: String, is_mandatory: bool) -> Self {
-        Self {
-            name,
-            r#type,
-            help,
-            is_mandatory,
-        }
-    }
-}
-
-impl From<(String, Type, String, bool)> for Flag {
-    fn from(_tuple: (String, Type, String, bool)) -> Self {
-        Self::new(_tuple.0, _tuple.1, _tuple.2, _tuple.3)
-    }
-}
-
-impl From<&(String, Type, String, bool)> for Flag {
-    fn from(_tuple: &(String, Type, String, bool)) -> Self {
-        Self::new(
-            _tuple.0.clone(),
-            _tuple.1.clone(),
-            _tuple.2.clone(),
-            _tuple.3,
-        )
-    }
-}
-
-impl From<&(&str, Type, &str, bool)> for Flag {
-    fn from(_tuple: &(&str, Type, &str, bool)) -> Self {
-        Self::new(
-            _tuple.0.to_string(),
-            _tuple.1.clone(),
-            _tuple.2.to_string(),
-            _tuple.3,
-        )
-    }
-}
-
-impl From<(&str, Type, &str, bool)> for Flag {
-    fn from(_tuple: (&str, Type, &str, bool)) -> Self {
-        Self::new(
-            _tuple.0.to_string(),
-            _tuple.1.clone(),
-            _tuple.2.to_string(),
-            _tuple.3,
-        )
-    }
-}
-
-/// A struct for Context that signifies an Argument
-#[derive(Debug, Clone)]
-pub struct Arg {
-    /// The name of the argument
-    pub name: String,
-    /// The type to parse the argument given into
-    pub r#type: Type,
-    /// Help message to display when errored
-    pub help: String,
-    /// Signal if the argument is mandatory or not
-    pub is_mandatory: bool,
-}
-
-impl Arg {
-    pub fn new(name: String, r#type: Type, help: String, is_mandatory: bool) -> Self {
-        Self {
-            name,
-            r#type,
-            help,
-            is_mandatory,
-        }
-    }
-}
-
-impl From<(String, Type, String, bool)> for Arg {
-    fn from(_t: (String, Type, String, bool)) -> Self {
-        Self::new(_t.0, _t.1, _t.2, _t.3)
-    }
-}
-
-impl From<&(String, Type, String, bool)> for Arg {
-    fn from(_t: &(String, Type, String, bool)) -> Self {
-        Self::new(_t.0.clone(), _t.1.clone(), _t.2.clone(), _t.3)
-    }
-}
-
-impl From<&(&str, Type, &str, bool)> for Arg {
-    fn from(_tuple: &(&str, Type, &str, bool)) -> Self {
-        Self::new(
-            _tuple.0.to_string(),
-            _tuple.1.clone(),
-            _tuple.2.to_string(),
-            _tuple.3,
-        )
-    }
-}
-
-impl From<(&str, Type, &str, bool)> for Arg {
-    fn from(_tuple: (&str, Type, &str, bool)) -> Self {
-        Self::new(
-            _tuple.0.to_string(),
-            _tuple.1.clone(),
-            _tuple.2.to_string(),
-            _tuple.3,
-        )
-    }
-}
-
-/// Context
-#[derive(Debug, Clone)]
-pub struct Context {
-    /// Name of the program itself
-    name: String,
-    /// Description of the program itself
-    description: String,
-    /// Defined aribtrary arguments
-    args: Vec<Arg>,
-    /// Defined arbitrary flags you want
-    flags: Vec<Flag>,
-}
-
-impl Context {
-    pub fn new(name: &str, description: &str) -> Self {
-        Self {
-            name: name.to_string(),
-            description: description.to_string(),
-            args: Vec::new(),
-            flags: Vec::new(),
-        }
-    }
-
-    /// getter
-    pub fn name(&self) -> String {
-        self.name.clone()
-    }
-
-    /// getter
-    pub fn description(&self) -> String {
-        self.description.clone()
-    }
-
-    /// getter
-    pub fn args(&self) -> Vec<Arg> {
-        self.args.clone()
-    }
-
-    /// getter
-    pub fn flags(&self) -> Vec<Flag> {
-        self.flags.clone()
-    }
-
-    pub fn add_args(&mut self, args: &[Arg]) -> Result<(), Error> {
-        for arg in args {
-            self.add_arg(arg.clone())?;
-        }
-        Ok(())
-    }
-
-    pub fn add_flags(&mut self, flags: &[Flag]) -> Result<(), Error> {
-        for flag in flags {
-            self.add_flag(flag.clone())?;
-        }
-        Ok(())
-    }
-
-    pub fn contains_arg(&self, name: &str) -> bool {
-        for arg in self.args.iter() {
-            if arg.name == name {
-                return true;
-            }
-        }
-        false
-    }
-
-    pub fn get_arg(&self, name: &str) -> Option<Arg> {
-        for arg in self.args.iter() {
-            if arg.name == name {
-                return Some(arg.clone());
-            }
-        }
-        None
-    }
-
-    pub fn add_arg(&mut self, arg: Arg) -> Result<(), Error> {
-        if self.contains_arg(&arg.name) {
-            return Err(Error::new(
-                ErrorKind::DuplicateArgument,
-                format!("Found a duplicate argument for `{}`", &arg.name),
-            ));
-        }
-        self.args.push(arg);
-        Ok(())
-    }
-
-    pub fn remove_arg(&mut self, name: &str) -> Result<Arg, Error> {
-        if !self.contains_arg(name) {
-            return Err(Error::new(
-                ErrorKind::MissingArgument,
-                format!("Argument `{}` never existed within the context", name),
-            ));
-        }
-        let index: usize = {
-            let mut bind = 0;
-            for (i, ar) in self.args.iter().enumerate() {
-                if ar.name == name {
-                    bind = i;
-                }
-            }
-            bind
-        };
-        Ok(self.args.remove(index))
-    }
-
-    pub fn contains_flag(&self, name: &str) -> bool {
-        for flag in self.flags.iter() {
-            if flag.name == name {
-                return true;
-            }
-        }
-        false
-    }
-
-    pub fn get_flag(&self, name: &str) -> Option<Flag> {
-        for flag in self.flags.iter() {
-            if flag.name == name {
-                return Some(flag.clone());
-            }
-        }
-        None
-    }
-
-    pub fn add_flag(&mut self, flag: Flag) -> Result<(), Error> {
-        if self.contains_flag(&flag.name) {
-            return Err(Error::new(
-                ErrorKind::DuplicateFlag,
-                format!("Found a duplicate flag for `{}`", &flag.name),
-            ));
-        }
-        self.flags.push(flag);
-        Ok(())
-    }
-
-    pub fn remove_flag(&mut self, name: &str) -> Result<Flag, Error> {
-        if !self.contains_flag(name) {
-            return Err(Error::new(
-                ErrorKind::MissingFlag,
-                format!("Flag `{}` never existed within the context", name),
-            ));
-        }
-        let index: usize = {
-            let mut bind = 0;
-            for i in 0..self.flags.len() {
-                if self.flags[i].name == name {
-                    bind = i;
-                    break;
-                }
-            }
-            bind
-        };
-        Ok(self.flags.remove(index))
-    }
-}
-
-/// A struct containing the instructions to parse
-/// and retrieve such data. It contains different flags
-/// that might contain string, integer, or boolean values,
-/// along the arguments hashmap.
+/// The returned parsed data
 #[derive(Debug, Clone)]
 pub struct ParsedArguments {
-    /// lone arguments that weren't part of a value for a flag, will go here
     pub arguments: HashMap<String, Option<Value>>,
     pub flags_int: HashMap<String, i32>,
     pub flags_str: HashMap<String, String>,
@@ -335,7 +87,7 @@ pub struct ParsedArguments {
 }
 
 impl ParsedArguments {
-    pub fn new() -> Self {
+    fn new() -> Self {
         Self {
             arguments: HashMap::new(),
             flags_int: HashMap::new(),
@@ -353,13 +105,12 @@ impl Default for ParsedArguments {
 
 /// parsing function that does the actual parsing
 ///
-/// Step By Step Process
-/// --------------------
-///     -> Get arguments and check for necessary arguments
-///     -> Assign arguments
-///     -> Separate flags and values from boolean flags
-///     -> Parse boolean flags
-///     -> Parse flags and values
+/// # Step By Step Process
+///     - Get arguments and check for necessary arguments
+///     - Assign arguments
+///     - Separate flags and values from boolean flags
+///     - Parse boolean flags
+///     - Parse flags and values
 fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, Error> {
     if arguments.contains(&String::from("--help")) {
         return Err(Error::new(ErrorKind::WantsHelp, String::new()));
@@ -553,7 +304,6 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
                     }
                 }
             }
-            //__parsed.arguments.insert(arg.name.clone(), Some(__args[i].to_string()));
         }
     }
     Ok(__parsed)
@@ -561,9 +311,10 @@ fn _parse(arguments: &[String], __context: Context) -> Result<ParsedArguments, E
 
 /// Main function to be executed when parsing the CLI arguments
 ///
-/// PARAMETERS (TYPE, NAME)
-/// ----------
-///     Context context => Struct containing the necessary data to parsed and retrieve, if any
+/// # Paramters
+/// | Type    | Name    | Description |
+/// |---------|---------|-------------|
+/// | context | Context | Gives the parser context to what to parse |
 pub fn parse(context: Context) -> ParsedArguments {
     // ignoring the first argument, which is automatically
     // the file being executed
