@@ -149,16 +149,16 @@ impl Default for Context {
     }
 }
 
-impl<const SIZE: usize>
+impl<const A: usize, const B: usize>
     From<&(
-        &[(&str, Type, &str, bool); SIZE],
-        &[(&str, Type, &str, bool); SIZE],
+        &[(&str, Type, &str, bool, Option<String>); A],
+        &[(&str, Type, &str, bool, Option<String>); B],
     )> for Context
 {
     fn from(
         _tuple: &(
-            &[(&str, Type, &str, bool); SIZE],
-            &[(&str, Type, &str, bool); SIZE],
+            &[(&str, Type, &str, bool, Option<String>); A],
+            &[(&str, Type, &str, bool, Option<String>); B],
         ),
     ) -> Self {
         let args: Vec<Arg> = _tuple.0.iter().map(Arg::from).collect();
@@ -167,16 +167,52 @@ impl<const SIZE: usize>
     }
 }
 
-impl<const SIZE: usize>
+impl<const A: usize, const B: usize>
     From<(
-        &[(&str, Type, &str, bool); SIZE],
-        &[(&str, Type, &str, bool); SIZE],
+        &[(&str, Type, &str, bool, Option<String>); A],
+        &[(&str, Type, &str, bool, Option<String>); B],
     )> for Context
 {
     fn from(
         _tuple: (
-            &[(&str, Type, &str, bool); SIZE],
-            &[(&str, Type, &str, bool); SIZE],
+            &[(&str, Type, &str, bool, Option<String>); A],
+            &[(&str, Type, &str, bool, Option<String>); B],
+        ),
+    ) -> Self {
+        let args: Vec<Arg> = _tuple.0.iter().map(Arg::from).collect();
+        let flags: Vec<Flag> = _tuple.1.iter().map(Flag::from).collect();
+        Self { args, flags }
+    }
+}
+
+impl<const A: usize, const B: usize>
+    From<&(
+        &[(&str, Type, &str, bool, Option<&str>); A],
+        &[(&str, Type, &str, bool, Option<&str>); B],
+    )> for Context
+{
+    fn from(
+        _tuple: &(
+            &[(&str, Type, &str, bool, Option<&str>); A],
+            &[(&str, Type, &str, bool, Option<&str>); B],
+        ),
+    ) -> Self {
+        let args: Vec<Arg> = _tuple.0.iter().map(Arg::from).collect();
+        let flags: Vec<Flag> = _tuple.1.iter().map(Flag::from).collect();
+        Self { args, flags }
+    }
+}
+
+impl<const A: usize, const B: usize>
+    From<(
+        &[(&str, Type, &str, bool, Option<&str>); A],
+        &[(&str, Type, &str, bool, Option<&str>); B],
+    )> for Context
+{
+    fn from(
+        _tuple: (
+            &[(&str, Type, &str, bool, Option<&str>); A],
+            &[(&str, Type, &str, bool, Option<&str>); B],
         ),
     ) -> Self {
         let args: Vec<Arg> = _tuple.0.iter().map(Arg::from).collect();

@@ -54,11 +54,15 @@ ARGUMENTS
 "#;
         let mut lines: Vec<String> = Vec::new();
         for arg in context.args.iter() {
-            lines.push(format!(
+            let mut buffer = format!(
                 "{:>15}   {}",
                 format!("<{}>", arg.name.to_uppercase()),
                 arg.help
-            ));
+            );
+            if let Some(def) = &arg.default {
+                buffer += &format!(" [DEFAULT={}]", def);
+            }
+            lines.push(buffer);
         }
         error_msg += &lines.join("\n");
     }
@@ -71,7 +75,11 @@ OPTIONS
 "#;
     let mut lines: Vec<String> = Vec::new();
     for flag in context.flags.iter() {
-        lines.push(format!("{:>15}   {}", flag.name, flag.help));
+        let mut buffer = format!("{:>15}   {}", flag.name, flag.help);
+        if let Some(def) = &flag.default {
+            buffer += &format!(" [DEFAULT={}]", def);
+        }
+        lines.push(buffer);
     }
     lines.push(format!("{:>15}   Displays this message", "--help"));
     error_msg += &lines.join("\n");

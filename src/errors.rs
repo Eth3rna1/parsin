@@ -1,4 +1,3 @@
-//use std::fmt;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result;
@@ -36,6 +35,12 @@ impl Error {
     /// Getter
     pub fn diagnosis(&self) -> String {
         self.diagnosis.clone()
+    }
+}
+
+impl PartialEq for Error {
+    fn eq(&self, other: &Error) -> bool {
+        self.kind == other.kind
     }
 }
 
