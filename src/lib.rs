@@ -1,39 +1,31 @@
 /*! # Parsin
-Parsin is a minimalistic Command Line Interface for Rust.
-Parsin offers explicit declaration of flags and arguments for
-better readability and maintainability within client code.
-The only functions that the client would need is [struct@Context],
-[struct@Flag], [struct@Arg], [enum@Type], and [fn@parse].
+Parsin is a minimalistic Command Line Interface parser for Rust.
+Parsin offers a simple way to creating context to parse that is both
+fast and simple.
+
+## Getting Started
+All you really need is the struct [`Context`](struct@crate::Context), along with
+[`Type`] enum to define the return types for flags and arguments,
+to give onto the [`parse`](fn@crate::parse) function, which returns
+the struct [`ParsedArguments`](struct@parser::ParsedArguments) where you can access the arguments and flags.
+
 ## Examples
-
-Initializing [`Arg`](struct@crate::Arg)
+Initiating [`Context`]
 ```rust
-use parsin::{Type, Arg};
+use parsin::{Context, Type};
 
 # fn main() {
-let arg = Arg::new("Name", Type::Str, "This is the description", true, None);
-println!("{:#?}", arg);
+let ctx = Context::from(( // within a tuple
+    &[ // First list defines the arguments
+        ("name", Type::Str, "Your name", true, None), // Arg
+    ],
+    &[ // Second list defines the flags
+        ("--repeat", Type::Int, "The amount of times to greet", false, Some("1")), // Flag
+    ]
+));
 # }
 ```
-Outputs
-```text
-Arg {
-    name: "Name",
-    type: Str,
-    help: "This is the description",
-    is_mandatory: true,
-}
-```
 
-Initializing [`Context`]
-```rust
-use parsin::Context;
-
-# fn main() {
-let context = Context::new();
-# }
-
-```
 */
 // Made modules in this program
 mod builder;

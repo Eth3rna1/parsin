@@ -4,8 +4,10 @@
 use crate::errors::Error;
 use crate::errors::ErrorKind;
 use crate::Context;
+use crate::get_env_args;
 
 use std::process::exit;
+
 
 /// Constructs the error message, stderrs, and exits with status 1
 ///
@@ -39,8 +41,11 @@ For more information, try passing `--help`."#,
 /// ---------------------------------
 ///     &Context context   A reference to the context fo the CLI parser
 pub fn send_advanced_help_and_exit(context: &Context) -> ! {
+    let name = &get_env_args()[0];
     let mut error_msg: String = String::new();
-    error_msg += "Usage: [OPTIONS] ";
+    error_msg += "Usage: ";
+    error_msg += &name;
+    error_msg += " [OPTIONS] ";
     if !context.args.is_empty() {
         let mut lines: Vec<String> = Vec::new();
         for arg in context.args.iter() {
