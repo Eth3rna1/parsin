@@ -3,11 +3,10 @@
 */
 use crate::errors::Error;
 use crate::errors::ErrorKind;
-use crate::Context;
 use crate::get_env_args;
+use crate::Context;
 
 use std::process::exit;
-
 
 /// Constructs the error message, stderrs, and exits with status 1
 ///
@@ -37,9 +36,9 @@ For more information, try passing `--help`."#,
 
 /// Constructs a more advanced, descriptive version of the help message, stderrs,
 /// and exits
-/// PARAMETERS <TYPE> <NAME>   <DESC>
-/// ---------------------------------
-///     &Context context   A reference to the context fo the CLI parser
+/// | Type   | Name | Description |
+/// |--------------------------------------|
+/// | &[`Context`] | context | A reference to the context fo the CLI parser |
 pub fn send_advanced_help_and_exit(context: &Context) -> ! {
     let name = &get_env_args()[0];
     let mut error_msg: String = String::new();

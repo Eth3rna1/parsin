@@ -4,10 +4,50 @@ Parsin offers a simple way to creating context to parse that is both
 fast and simple.
 
 ## Getting Started
-All you really need is the struct [`Context`](struct@crate::Context), along with
-[`Type`] enum to define the return types for flags and arguments,
-to give onto the [`parse`](fn@crate::parse) function, which returns
-the struct [`ParsedArguments`](struct@parser::ParsedArguments) where you can access the arguments and flags.
+### Necessary imports
+Add parsin into your cargo project by using this command
+
+```console
+cargo add parsin
+```
+Once the crate has been added include these imports
+```rust
+use parsin::{
+    Context,
+    Type,
+    parse
+};
+```
+Initialize [`Context`]
+```rust
+# use parsin::{
+#    Context,
+#    Type,
+#    parse
+# };
+#
+# fn main() {
+let context = Context::new();
+# }
+```
+Pass a reference of [`Context`] into [`parse`].
+```rust
+# use parsin::{
+#    Context,
+#    Type,
+#    parse
+# };
+use parsin::parser::ParsedArguments;
+
+#
+# fn main() {
+# let context = Context::new();
+// Final object
+// contains `.flags` and `.arguments` which contain
+// hashmaps whose values are Value (enum@crate::parser::Value)
+let parsed: ParsedArguments = parse(&context);
+# }
+```
 
 ## Examples
 Initiating [`Context`]
@@ -25,13 +65,31 @@ let ctx = Context::from(( // within a tuple
 ));
 # }
 ```
+Alternatively, a more manual approach would include the usage of [`Arg`] and [`Flag`].
+```rust
+use parsin::{Context, Type, Flag, Arg};
+
+# fn main() {
+let ctx = Context::from((
+    &[
+        Arg::from(("arg1", Type::Str, "argument one", true, None)),
+        Arg::from(("arg2", Type::Str, "argument two", true, None)),
+    ],
+    &[
+        Flag::from(("flag1", Type::Int, "flag with int value", false, Some("19"))),
+        Flag::from(("flag2", Type::Bool, "once raised, returns true for this flag", false, Some("false"))),
+    ]
+));
+# }
+```
 
 */
-// Made modules in this program
+// Made modules in this crate
 mod builder;
-/// Contains its own Error struct along with error types
+/// Contains its own Error struct along with error types.
 pub mod errors;
 mod help;
+/// Contains the necessary objects to work with [`ParsedArgument`](struct@crate::parser::ParsedArguments)
 pub mod parser;
 
 // Simplifying modularization within the API
@@ -43,7 +101,7 @@ pub use parser::parse;
 // Use of the standard library
 use std::env::args;
 
-/// Obtains the Command Line Interface arguments
+/// Obtains the Command Line arguments
 pub fn get_env_args() -> Vec<String> {
     args().collect::<Vec<String>>()
 }

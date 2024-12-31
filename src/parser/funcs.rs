@@ -12,7 +12,7 @@ pub(crate) fn _look_for_help(args: &[String]) -> Result<(), Error> {
     Ok(())
 }
 
-fn __find_and_remove<T : PartialEq>(list: &mut Vec<T>, item: &T) -> Option<T> {
+fn __find_and_remove<T: PartialEq>(list: &mut Vec<T>, item: &T) -> Option<T> {
     // if item not in the list or is empty
     let llen = list.len();
     if !list.contains(item) || llen == 0 {
@@ -20,7 +20,7 @@ fn __find_and_remove<T : PartialEq>(list: &mut Vec<T>, item: &T) -> Option<T> {
     }
     // this is an anonymous function, it does NOT return
     // for the outter function
-    let index: usize = (|l : &[T], i : &T|{
+    let index: usize = (|l: &[T], i: &T| {
         if l.len() == 1 {
             return 0;
         }
@@ -57,7 +57,8 @@ pub(crate) fn _arguments_and_options(args: &[String], ctx: &Context) -> (Vec<Str
                         let bind = __find_and_remove(&mut __args, &args[__pointer + 1]).unwrap();
                         __f_v.push(bind);
                         if &args[__pointer + 1] == "--" && __pointer + 2 < a_len {
-                            let bind = __find_and_remove(&mut __args, &args[__pointer + 2]).unwrap();
+                            let bind =
+                                __find_and_remove(&mut __args, &args[__pointer + 2]).unwrap();
                             __f_v.push(bind);
                             __pointer += 3;
                             continue;
@@ -239,7 +240,11 @@ pub(crate) fn _assign_arguments(
     Ok(())
 }
 
-fn __assign_uncovered_flags(parsed : &mut ParsedArguments, ctx : &Context, __covered_flags : &[&str]) -> Result<(), Error>{
+fn __assign_uncovered_flags(
+    parsed: &mut ParsedArguments,
+    ctx: &Context,
+    __covered_flags: &[&str],
+) -> Result<(), Error> {
     // making use of the default value
     for flag in ctx.flags.iter() {
         if __covered_flags.contains(&flag.name.as_str()) {

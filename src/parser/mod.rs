@@ -28,13 +28,6 @@ fn _unwrap_or_throw<R>(variant: Result<R, Error>, ctx: &Context) -> R {
 }
 
 /// # Main Function to be executed when parsin the CLI arguments
-/// ## Step-by-step process
-/// ---
-///     1. Check for an early return
-///     2. Obtain all flags, values, and arguments
-///     3. Check for mandatory arguments
-///     4. Check for mandatory flags
-///     5. Populated the __parsed variable
 pub fn parse(__ctx: &Context) -> ParsedArguments {
     {
         // Checking for the `--help` flag.

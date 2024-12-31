@@ -4,7 +4,8 @@ use crate::Arg;
 use crate::Flag;
 use crate::Type;
 
-/// [`Context`]
+/// A struct defining arbitrary arguments and flags
+/// to then pass onto the [parse](fn@crate::parse) function
 #[derive(Debug, Clone)]
 pub struct Context {
     /// Defined aribtrary arguments
@@ -151,42 +152,6 @@ impl Default for Context {
 
 impl<const A: usize, const B: usize>
     From<&(
-        &[(&str, Type, &str, bool, Option<String>); A],
-        &[(&str, Type, &str, bool, Option<String>); B],
-    )> for Context
-{
-    fn from(
-        _tuple: &(
-            &[(&str, Type, &str, bool, Option<String>); A],
-            &[(&str, Type, &str, bool, Option<String>); B],
-        ),
-    ) -> Self {
-        let args: Vec<Arg> = _tuple.0.iter().map(Arg::from).collect();
-        let flags: Vec<Flag> = _tuple.1.iter().map(Flag::from).collect();
-        Self { args, flags }
-    }
-}
-
-impl<const A: usize, const B: usize>
-    From<(
-        &[(&str, Type, &str, bool, Option<String>); A],
-        &[(&str, Type, &str, bool, Option<String>); B],
-    )> for Context
-{
-    fn from(
-        _tuple: (
-            &[(&str, Type, &str, bool, Option<String>); A],
-            &[(&str, Type, &str, bool, Option<String>); B],
-        ),
-    ) -> Self {
-        let args: Vec<Arg> = _tuple.0.iter().map(Arg::from).collect();
-        let flags: Vec<Flag> = _tuple.1.iter().map(Flag::from).collect();
-        Self { args, flags }
-    }
-}
-
-impl<const A: usize, const B: usize>
-    From<&(
         &[(&str, Type, &str, bool, Option<&str>); A],
         &[(&str, Type, &str, bool, Option<&str>); B],
     )> for Context
@@ -218,5 +183,23 @@ impl<const A: usize, const B: usize>
         let args: Vec<Arg> = _tuple.0.iter().map(Arg::from).collect();
         let flags: Vec<Flag> = _tuple.1.iter().map(Flag::from).collect();
         Self { args, flags }
+    }
+}
+
+impl<const A: usize, const B: usize> From<&(&[Arg; A], &[Flag; B])> for Context {
+    fn from(_tuple: &(&[Arg; A], &[Flag; B])) -> Self {
+        Self {
+            args: _tuple.0.to_vec(),
+            flags: _tuple.1.to_vec(),
+        }
+    }
+}
+
+impl<const A: usize, const B: usize> From<(&[Arg; A], &[Flag; B])> for Context {
+    fn from(_tuple: (&[Arg; A], &[Flag; B])) -> Self {
+        Self {
+            args: _tuple.0.to_vec(),
+            flags: _tuple.1.to_vec(),
+        }
     }
 }

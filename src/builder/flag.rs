@@ -1,18 +1,63 @@
 use crate::Type;
 
 /// Defines a Flag within [Context][struct@crate::Context]
+///
+/// ### **Fields**
+/// ```text
+///                                         Description when display
+///                                         the help message
+///                                                  |
+///            Name of the argument                  |     Indicates whether the flag
+///                       |                          |         MUST be passed
+///                       |                          |              |
+///                      vvv                        vvv            vvv
+/// let flag = flag::new("age", Type::Int, "Your age description", true, None);
+///                                ^^^                                   ^^^
+///                                 |                                     |
+///                             Return type                               |
+///                                                            Default value represented
+///                                                           as a string wrapped in an Option
+///                                                          enum to parse later as a substitute
+///
+/// ```
+///
+/// ### Getting Started
+/// Initializing [Flag]
+/// ```rust
+/// use parsin::{Type, Flag};
+///
+/// # fn main() {
+/// let flag = Flag::new(
+///     String::from("name"),
+///     Type::Str,
+///     String::from("This is the description"),
+///     false,
+///     Some(String::from("default value"))
+/// );
+/// # }
+/// ```
+/// Alternatively, a simpler and more flexible initialization would be utilizing the [`From`] trait.
+/// ```rust
+/// use parsin::{Type, Flag};
+///
+/// # fn main() {
+/// let flag = Flag::from(
+///     ("name", Type::Str, "This is the description", true, Some("default value"))
+/// );
+/// # }
+/// ```
 #[derive(Debug, Clone)]
 pub struct Flag {
     /// The flag itself used to indicate a flag
-    pub name: String,
-    /// The type of the value obtained to parse into
-    pub r#type: Type,
+    pub(crate) name: String,
+    /// Defines the return type of the parsed value
+    pub(crate) r#type: Type,
     /// Help message when displaying an advanced error
-    pub help: String,
+    pub(crate) help: String,
     /// Signals if its an important flag or not
-    pub is_mandatory: bool,
+    pub(crate) is_mandatory: bool,
     /// Introduce a string default value, that'll get parsed later during execution
-    pub default: Option<String>,
+    pub(crate) default: Option<String>,
 }
 
 impl Flag {
@@ -31,6 +76,26 @@ impl Flag {
             is_mandatory,
             default,
         }
+    }
+
+    pub fn get_name(&self) -> String {
+        self.name.clone()
+    }
+
+    pub fn get_type(&self) -> Type {
+        self.r#type.clone()
+    }
+
+    pub fn get_description(&self) -> String {
+        self.help.clone()
+    }
+
+    pub fn is_mandatory(&self) -> bool {
+        self.is_mandatory
+    }
+
+    pub fn get_default(&self) -> Option<String> {
+        self.default.clone()
     }
 }
 
@@ -52,29 +117,6 @@ impl From<&(String, Type, String, bool, Option<String>)> for Flag {
     }
 }
 
-impl From<(&str, Type, &str, bool, Option<String>)> for Flag {
-    fn from(_tuple: (&str, Type, &str, bool, Option<String>)) -> Self {
-        Self::new(
-            _tuple.0.to_string(),
-            _tuple.1.clone(),
-            _tuple.2.to_string(),
-            _tuple.3,
-            _tuple.4,
-        )
-    }
-}
-
-impl From<&(&str, Type, &str, bool, Option<String>)> for Flag {
-    fn from(_tuple: &(&str, Type, &str, bool, Option<String>)) -> Self {
-        Self::new(
-            _tuple.0.to_string(),
-            _tuple.1.clone(),
-            _tuple.2.to_string(),
-            _tuple.3,
-            _tuple.4.clone(),
-        )
-    }
-}
 
 impl From<&(&str, Type, &str, bool, Option<&str>)> for Flag {
     fn from(_tuple: &(&str, Type, &str, bool, Option<&str>)) -> Self {
