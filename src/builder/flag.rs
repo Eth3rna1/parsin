@@ -117,7 +117,6 @@ impl From<&(String, Type, String, bool, Option<String>)> for Flag {
     }
 }
 
-
 impl From<&(&str, Type, &str, bool, Option<&str>)> for Flag {
     fn from(_tuple: &(&str, Type, &str, bool, Option<&str>)) -> Self {
         if let Some(string) = _tuple.4 {

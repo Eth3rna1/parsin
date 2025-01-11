@@ -11,6 +11,8 @@ pub use builder::Value;
 use std::sync::LazyLock;
 
 static ARGUMENTS: LazyLock<Vec<String>> = LazyLock::new(|| {
+    // getting rid of the argument containing the file name because
+    // it will only cause trouble in the long run
     let bind = get_env_args();
     match bind.len() {
         1 => Vec::new(),
@@ -53,7 +55,6 @@ pub fn parse(__ctx: &Context) -> ParsedArguments {
         );
     }
     {
-        // assigning flags and values correspondingly
         _unwrap_or_throw(
             funcs::_assign_options(&mut __parsed, &__flags_and_values, __ctx),
             __ctx,

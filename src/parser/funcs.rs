@@ -247,6 +247,7 @@ fn __assign_uncovered_flags(
 ) -> Result<(), Error> {
     // making use of the default value
     for flag in ctx.flags.iter() {
+        // if flag has already been covered
         if __covered_flags.contains(&flag.name.as_str()) {
             continue;
         }
@@ -304,6 +305,9 @@ pub(crate) fn _assign_options(
     let mut __covered_flags: Vec<&str> = Vec::new();
     let fv_len = fv.len();
     if fv_len == 0 {
+        // if there are no flags present, but flags
+        // were defined in the Context, the following,
+        // will assign such values with their default values
         __assign_uncovered_flags(parsed, ctx, &__covered_flags)?;
     }
     while __pointer < fv_len {

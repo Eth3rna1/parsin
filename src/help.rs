@@ -40,7 +40,10 @@ For more information, try passing `--help`."#,
 /// |--------------------------------------|
 /// | &[`Context`] | context | A reference to the context fo the CLI parser |
 pub fn send_advanced_help_and_exit(context: &Context) -> ! {
-    let name = &get_env_args()[0];
+    let name: &String = &{
+        let bind = std::path::PathBuf::from(&get_env_args()[0]);
+        bind.file_name().unwrap().to_str().unwrap().to_string()
+    };
     let mut error_msg: String = String::new();
     error_msg += "Usage: ";
     error_msg += &name;

@@ -17,18 +17,32 @@ impl Value {
         }
     }
 
-    pub fn unwrap_str(&self) -> &String {
+    pub fn unwrap_str<'a>(&'a self) -> &'a String {
         match self {
             Value::Str(v) => v,
             _ => panic!("Unwrapped the wrong variant"),
         }
     }
 
-    pub fn unwrap_bool(&self) -> &bool {
+    pub fn unwrap_str_or<'a>(&'a self, other : &'a String) -> &'a String {
+        if self.is_null() {
+            return other;
+        }
+        self.unwrap_str()
+    }
+
+    pub fn unwrap_bool<'a>(&'a self) -> &'a bool {
         match self {
             Value::Bool(v) => v,
             _ => panic!("Unwrapped the wrong variant"),
         }
+    }
+
+    pub fn unwrap_bool_or<'a>(&'a self, other : &'a bool) -> &'a bool {
+        if self.is_null() {
+            return other;
+        }
+        self.unwrap_bool()
     }
 
     pub fn unwrap_int(&self) -> &i32 {
@@ -36,6 +50,13 @@ impl Value {
             Value::Int(v) => v,
             _ => panic!("Unwrapped the wrong variant"),
         }
+    }
+
+    pub fn unwrap_int_or<'a>(&'a self, other : &'a i32) -> &'a i32 {
+        if self.is_null() {
+            return other;
+        }
+        self.unwrap_int()
     }
 }
 

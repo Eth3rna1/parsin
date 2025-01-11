@@ -4,9 +4,7 @@ Parsin offers a simple way to creating context to parse that is both
 fast and simple.
 
 ## Getting Started
-### Necessary imports
 Add parsin into your cargo project by using this command
-
 ```console
 cargo add parsin
 ```
@@ -27,7 +25,14 @@ Initialize [`Context`]
 # };
 #
 # fn main() {
-let context = Context::new();
+let context = Context::from((
+    &[
+        ("Argument", Type::Str, "test argument desc", true, Some("string default value"))
+    ],
+    &[
+        ("--flag", Type::Bool, "test flag desc", false, None)
+    ]
+));
 # }
 ```
 Pass a reference of [`Context`] into [`parse`].
@@ -47,6 +52,18 @@ use parsin::parser::ParsedArguments;
 // hashmaps whose values are Value (enum@crate::parser::Value)
 let parsed: ParsedArguments = parse(&context);
 # }
+```
+# Working with Parsin
+Regarding cargo projects, if you wish to pass arguments during the
+building process, when you run `cargo run --release` or `cargo run`,
+you can insert `--` between the cargo command and your arguments.
+Take the following for example:
+```console
+cargo run --release -- {ARGUMENT} {FLAG1} {FLAG2}
+```
+Or
+```console
+cargo run -- {ARGUMENT} {FLAG1} {FLAG2}
 ```
 
 ## Examples

@@ -97,7 +97,6 @@ impl Arg {
     }
 }
 
-
 impl From<&(&str, Type, &str, bool, Option<&str>)> for Arg {
     fn from(_tuple: &(&str, Type, &str, bool, Option<&str>)) -> Self {
         if let Some(string) = _tuple.4 {
@@ -109,7 +108,13 @@ impl From<&(&str, Type, &str, bool, Option<&str>)> for Arg {
                 Some(string.to_string()),
             );
         }
-        Self::new(_tuple.0.to_string(), _tuple.1.clone(), _tuple.2.to_string(), _tuple.3, None)
+        Self::new(
+            _tuple.0.to_string(),
+            _tuple.1.clone(),
+            _tuple.2.to_string(),
+            _tuple.3,
+            None,
+        )
     }
 }
 
@@ -124,8 +129,12 @@ impl From<(&str, Type, &str, bool, Option<&str>)> for Arg {
                 Some(string.to_string()),
             );
         }
-        Self::new(_tuple.0.to_string(), _tuple.1, _tuple.2.to_string(), _tuple.3, None)
+        Self::new(
+            _tuple.0.to_string(),
+            _tuple.1,
+            _tuple.2.to_string(),
+            _tuple.3,
+            None,
+        )
     }
 }
-
-

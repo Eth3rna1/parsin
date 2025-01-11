@@ -65,6 +65,12 @@ impl Context {
     }
 
     pub fn add_arg(&mut self, arg: Arg) -> Result<(), Error> {
+        if arg.name == "--" {
+            return Err(Error::new(
+                ErrorKind::Other,
+                "`--` is an invalid name for an Arg".to_string(),
+            ));
+        }
         if self.contains_arg(&arg.name) {
             return Err(Error::new(
                 ErrorKind::DuplicateArgument,
@@ -113,6 +119,12 @@ impl Context {
     }
 
     pub fn add_flag(&mut self, flag: Flag) -> Result<(), Error> {
+        if flag.name == "--" {
+            return Err(Error::new(
+                ErrorKind::Other,
+                "`--` is an invalid name for a Flag".to_string(),
+            ));
+        }
         if self.contains_flag(&flag.name) {
             return Err(Error::new(
                 ErrorKind::DuplicateFlag,
