@@ -4,6 +4,7 @@ authors = ["Gabriel Mendieta Hernandez <gmendieta4109@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
 description = "A simple, minimalistic CLI (Command-Line Interface) parser for Rust."
-documentation = "https://docs.rs/parsin"
+repository = "https://github.com/Eth3rna1/parsin"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
