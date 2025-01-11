@@ -6,5 +6,6 @@ edition = "2021"
 description = "A simple, minimalistic CLI (Command-Line Interface) parser for Rust."
 repository = "https://github.com/Eth3rna1/parsin"
 license = "MIT OR Apache-2.0"
+documentation = "https://docs.rs/parsin"
 
 [dependencies]
